@@ -1,0 +1,59 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+/**
+ * Hook for declaratively reading and updating query params in the URL.
+ * Accepts the current path (e.g. from usePage().url when using Inertia) so it can
+ * stay in sync when the page changes. Returns the fully-qualified URL search params
+ * object from the core JavaScript API.
+ * Array-type params should always use the `[]` suffix to avoid Safari's repeated param parsing.
+ * E.g. `col=id&col=email` should be `cols[]=id&cols[]=email`.
+ * The setParams call will update via window.history.pushState so the URL stays in sync.
+ * N.B. This hook is stateful and automatically subscribes any component that uses it
+ * to the state of the URL. It's primarily intended to be used to bind the local state
+ * of a view to the URL via query params.
+ */
+export function useQueryParams(path: string): [
+  URLSearchParams,
+  (params: URLSearchParams) => void,
+] {
+  const [searchString, setSearchString] = useState(() =>
+    typeof window === "undefined" ? "" : window.location.search,
+  );
+
+  // Sync when the path changes (e.g. Inertia navigation when caller passes usePage().url)
+  useEffect(() => {
+    setSearchString(getSearchFromPath(path));
+  }, [path]);
+
+  // Sync from browser Back/Forward
+  useEffect(() => {
+    const handlePopState = () => {
+      setSearchString(window.location.search);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  const params = useMemo(
+    () => new URLSearchParams(searchString),
+    [searchString],
+  );
+
+  const setParams = useCallback((next: URLSearchParams) => {
+    const newUrl = new URL(window.location.href);
+    newUrl.search = next.toString();
+    /**
+     * This pushState call needs the empty state object primarily so
+     * Safari keeps the entry for forward navigation. Some browsers won't
+     * preserve the entry if it's null.
+     */
+    window.history.pushState({}, "", newUrl.toString());
+    setSearchString(newUrl.search);
+  }, []);
+
+  return [params, setParams];
+}
+
+function getSearchFromPath(path: string): string {
+  return new URL(path, window.location.origin).search;
+}

@@ -1,0 +1,43 @@
+{
+  "name": "@poetry-software/use-query-params",
+  "version": "0.0.1",
+  "description": "React hook for declaratively reading and updating URL query params",
+  "type": "module",
+  "main": "dist/use-query-params.js",
+  "types": "dist/use-query-params.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/use-query-params.d.ts",
+      "import": "./dist/use-query-params.js",
+      "default": "./dist/use-query-params.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "react",
+    "hooks",
+    "query-params",
+    "url",
+    "search-params"
+  ],
+  "author": "Alec DuBois",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/poetry-software/use-query-params.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "react": "^19.0.0",
+    "typescript": "5.7.2"
+  }
+}
