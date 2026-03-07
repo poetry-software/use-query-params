@@ -7,14 +7,12 @@ A small React hook for reading and updating URL query params declaratively. Stay
 From GitHub:
 
 ```bash
-npm install github:YOUR_USERNAME/use-query-params
+npm install github:poetry-software/use-query-params
 # or
-yarn add github:YOUR_USERNAME/use-query-params
+yarn add github:poetry-software/use-query-params
 # or
-pnpm add github:YOUR_USERNAME/use-query-params
+pnpm add github:poetry-software/use-query-params
 ```
-
-Replace `YOUR_USERNAME` with the GitHub org or username that hosts the repo.
 
 ## Usage
 
@@ -23,7 +21,9 @@ import { useQueryParams } from "use-query-params";
 
 function MyComponent() {
   // Pass the current path so the hook stays in sync when the route changes (e.g. usePage().url with Inertia)
-  const [params, setParams] = useQueryParams(window.location.pathname + window.location.search);
+  const [params, setParams] = useQueryParams(
+    window.location.pathname + window.location.search
+  );
 
   const page = params.get("page") ?? "1";
 
@@ -57,7 +57,7 @@ function UsersIndex() {
 
 ## API
 
-- **`useQueryParams(path: string)`**  
+- **`useQueryParams(path: string)`**
   - `path` – Full path (and optional search) for the current page, so the hook can resync when the route changes.
   - Returns `[params, setParams]`:
     - `params` – `URLSearchParams` for the current query string.
