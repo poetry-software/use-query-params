@@ -30,7 +30,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build"
+    "prepare": "tsc"
   },
   "peerDependencies": {
     "react": ">=16.8.0"
