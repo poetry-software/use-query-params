@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDefaultParams } from "./use-default-params";
 import type { DefaultQueryParams } from "./use-default-params";
 
 /**
@@ -58,7 +57,23 @@ export function useQueryParams(
     setSearchString(newUrl.search);
   }, []);
 
-  useDefaultParams(path, setParams, defaults);
+  useEffect(() => {
+    if (!defaults) return;
+
+    const search = path.includes("?") ? path.slice(path.indexOf("?") + 1) : ""
+    const current = new URLSearchParams(search)
+    const canonical = new URLSearchParams(current)
+
+    for (const [key, value] of Object.entries(defaults)) {
+      if (!canonical.has(key)) {
+        canonical.set(key, value)
+      }
+    }
+
+    if (canonical.toString() !== current.toString()) {
+      setParams(canonical)
+    }
+  }, [path, setParams, defaults])
 
   return [params, setParams];
 }
