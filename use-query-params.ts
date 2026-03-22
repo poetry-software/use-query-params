@@ -19,14 +19,6 @@ import type { DefaultQueryParams } from "./use-default-params";
  * of a view to the URL via query params and not as a state management tool.
  * Please keep your actual component state independent of the URL query params.
  */
-export function useQueryParams(path: string): [
-  URLSearchParams,
-  (params: URLSearchParams) => void,
-];
-export function useQueryParams(
-  path: string,
-  defaults: DefaultQueryParams,
-): [URLSearchParams, (params: URLSearchParams) => void];
 export function useQueryParams(
   path: string,
   defaults?: DefaultQueryParams,
