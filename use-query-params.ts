@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDefaultParams } from "./use-default-params";
+import type { DefaultQueryParams } from "./use-default-params";
 
 /**
  * Hook for declaratively reading and updating query params in the URL.
@@ -8,21 +10,34 @@ import { useCallback, useEffect, useMemo, useState } from "react";
  * Array-type params should always use the `[]` suffix to avoid Safari's repeated param parsing.
  * E.g. `col=id&col=email` should be `cols[]=id&cols[]=email`.
  * The setParams call will update via window.history.pushState so the URL stays in sync.
+ * Optional `defaults` fills in missing query keys when the path changes (first visit or
+ * navigation) without overwriting params already present in the URL. Pass a
+ * {@link URLSearchParams} or a plain object; array values are serialized with a `[]` key
+ * suffix unless the key already ends with `[]`.
  * N.B. This hook is stateful and automatically subscribes any component that uses it
  * to the state of the URL. It's primarily intended to be used to bind the local state
- * of a view to the URL via query params.
+ * of a view to the URL via query params and not as a state management tool.
+ * Please keep your actual component state independent of the URL query params.
  */
 export function useQueryParams(path: string): [
   URLSearchParams,
   (params: URLSearchParams) => void,
-] {
+];
+export function useQueryParams(
+  path: string,
+  defaults: DefaultQueryParams,
+): [URLSearchParams, (params: URLSearchParams) => void];
+export function useQueryParams(
+  path: string,
+  defaults?: DefaultQueryParams,
+): [URLSearchParams, (params: URLSearchParams) => void] {
   const [searchString, setSearchString] = useState(() =>
     typeof window === "undefined" ? "" : window.location.search,
   );
 
   // Sync when the path changes (e.g. Inertia navigation when caller passes usePage().url)
   useEffect(() => {
-    setSearchString(getSearchFromPath(path));
+    setSearchString(new URL(path, window.location.origin).search);
   }, [path]);
 
   // Sync from browser Back/Forward
@@ -51,9 +66,7 @@ export function useQueryParams(path: string): [
     setSearchString(newUrl.search);
   }, []);
 
-  return [params, setParams];
-}
+  useDefaultParams(path, params, setParams, defaults);
 
-function getSearchFromPath(path: string): string {
-  return new URL(path, window.location.origin).search;
+  return [params, setParams];
 }
