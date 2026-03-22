@@ -58,7 +58,7 @@ export function useQueryParams(
     setSearchString(newUrl.search);
   }, []);
 
-  useDefaultParams(path, params, setParams, defaults);
+  useDefaultParams(path, setParams, defaults);
 
   return [params, setParams];
 }

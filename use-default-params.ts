@@ -12,17 +12,46 @@ export type DefaultQueryParams =
 
 export function useDefaultParams(
   path: string,
-  params: URLSearchParams,
   setParams: (params: URLSearchParams) => void,
   defaults?: DefaultQueryParams,
 ): void {
+  const defaultsSignature =
+    defaults === undefined || defaults === null
+      ? undefined
+      : defaultsValueSignature(defaults);
+
   useEffect(() => {
     if (defaults === undefined || defaults === null) return;
-    const merged = mergeMissingDefaults(params, defaults);
-    if (merged.toString() !== params.toString()) {
+    const current = searchParamsFromPath(path);
+    const merged = mergeMissingDefaults(current, defaults);
+    if (merged.toString() !== current.toString()) {
       setParams(merged);
     }
-  }, [path, params, setParams, defaults]);
+  }, [path, setParams, defaultsSignature]);
+}
+
+function searchParamsFromPath(path: string): URLSearchParams {
+  const search = new URL(path, window.location.origin).search;
+  return new URLSearchParams(search);
+}
+
+function defaultsValueSignature(defaults: DefaultQueryParams): string {
+  const n = normalizeDefaults(defaults);
+  const keys = new Set<string>();
+  n.forEach((_value, key) => {
+    keys.add(key);
+  });
+  const sortedKeys = [...keys].sort((a, b) => a.localeCompare(b));
+  const parts: string[] = [];
+  for (const key of sortedKeys) {
+    const values = n.getAll(key).slice().sort((a, b) => a.localeCompare(b));
+    for (const value of values) {
+      parts.push(
+        `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+      );
+    }
+  }
+  return parts.join("&");
 }
 
 function arrayParamKey(baseKey: string): string {
