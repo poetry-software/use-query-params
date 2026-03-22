@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import type { DefaultQueryParams } from "./use-default-params";
 
 /**
@@ -28,7 +34,9 @@ export function useQueryParams(
 
   // Sync when the path changes (e.g. Inertia navigation when caller passes usePage().url)
   useEffect(() => {
-    setSearchString(new URL(path, window.location.origin).search);
+    startTransition(() => {
+      setSearchString(new URL(path, window.location.origin).search);
+    })
   }, [path]);
 
   // Sync from browser Back/Forward
@@ -71,7 +79,9 @@ export function useQueryParams(
     }
 
     if (canonical.toString() !== current.toString()) {
-      setParams(canonical)
+      startTransition(() => {
+        setParams(canonical)
+      })
     }
   }, [path, setParams, defaults])
 
